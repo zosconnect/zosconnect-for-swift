@@ -1,4 +1,5 @@
 import Foundation
+import Dispatch
 
 print("About to create ZosConnect")
 let zosconnect = ZosConnect(hostName:"http://192.168.99.100", port:9080)
