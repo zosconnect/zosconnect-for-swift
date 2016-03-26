@@ -1,0 +1,50 @@
+{
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "85E996FB125657C20E42A299A76F925867A7A6E4+++AAF9EDA" : 0,
+    "09E058C67A1F7EC8B3C920635B04A0078313C192+++49D30FB" : 0,
+    "CCF984214700D2A903656BB151000EB6798D0AF8+++1CA2618" : 0,
+    "43C021D2F0E746BBB29CA4E06229F111196D4871+++7D04372" : 0,
+    "CCF984214700D2A903656BB151000EB6798D0AF8+++18C3966" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "71ECCD0C-A6AA-4733-B09C-A548B9319291",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "85E996FB125657C20E42A299A76F925867A7A6E4+++AAF9EDA" : "zosconnect-for-swift\/Packages\/LoggerAPI-0.4.0\/",
+    "09E058C67A1F7EC8B3C920635B04A0078313C192+++49D30FB" : "zosconnect-for-swift\/Packages\/Kitura-Sys-0.4.0\/",
+    "CCF984214700D2A903656BB151000EB6798D0AF8+++1CA2618" : "zosconnect-for-swift\/Packages\/Kitura-net-0.5.8\/Kitura-Build\/",
+    "43C021D2F0E746BBB29CA4E06229F111196D4871+++7D04372" : "zosconnect-for-swift\/Packages\/BlueSocket-0.2.3\/",
+    "CCF984214700D2A903656BB151000EB6798D0AF8+++18C3966" : "zosconnect-for-swift\/Packages\/Kitura-net-0.5.8\/Kitura-Build\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "zosconnect-for-swift",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "zosconnect-for-swift\/zosconnect-for-swift.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/IBM-Swift\/Kitura-sys.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "09E058C67A1F7EC8B3C920635B04A0078313C192+++49D30FB"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/IBM-Swift\/BlueSocket.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "43C021D2F0E746BBB29CA4E06229F111196D4871+++7D04372"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/IBM-Swift\/LoggerAPI.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "85E996FB125657C20E42A299A76F925867A7A6E4+++AAF9EDA"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/IBM-Swift\/Kitura-Build.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "CCF984214700D2A903656BB151000EB6798D0AF8+++18C3966"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/IBM-Swift\/Kitura-Build.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "CCF984214700D2A903656BB151000EB6798D0AF8+++1CA2618"
+    }
+  ]
+}
