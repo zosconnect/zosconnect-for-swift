@@ -9,7 +9,7 @@ import PackageDescription
 #endif
 
 let package = Package(
-    name: "zosconnect-for-swift",
+    name: "zosconnectforswift",
     targets: [],
     dependencies: [
       .Package(url: swiftyJsonUrl, majorVersion: swiftyJsonVersion),
