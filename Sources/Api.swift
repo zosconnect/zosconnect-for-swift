@@ -1,4 +1,6 @@
 import Foundation
+import SwiftyJSON
+import KituraNet
 
 public class Api {
   let connection: ZosConnect
@@ -9,5 +11,18 @@ public class Api {
     self.connection = connection
     self.apiName = apiName
     self.basePath = basePath
+  }
+  
+  func getApiDoc(callback: (NSData?) -> Void) {
+    Http.get(basePath + "/api-docs") { (response) in
+      let data = NSMutableData()
+      do {
+        try response?.readAllData(data)
+        callback(data)
+      } catch let error {
+        print("got an error creating the request: \(error)")
+        callback(nil)
+      }
+    }
   }
 }
