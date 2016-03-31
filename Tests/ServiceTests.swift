@@ -33,4 +33,12 @@ class ServiceTests: XCTestCase {
     }
   }
   
+  func testGetRequestSchema() {
+    zosConnect.getService("dateTimeService") { (service) in
+      service?.getRequestSchema({ (schema) in
+        XCTAssertNotNil(schema)
+      })
+    }
+  }
+  
 }
