@@ -33,8 +33,20 @@ public class Service {
     }
   }
   
-  func getResponseSchema(callback: (NSData?) -> Void){
-    
+  public func getResponseSchema(callback: (NSData?) -> Void){
+    var uri = connection.hostName + ":" + String(connection.port)
+    uri += "/zosConnect/services/" + serviceName + "?action=getResponseSchema"
+    print(uri)
+    Http.get(uri) { (response) in
+      let data = NSMutableData()
+      do {
+        try response?.readAllData(data)
+        callback(data)
+      } catch let error {
+        print("got an error creating the request: \(error)")
+        callback(nil)
+      }
+    }
   }
   
   public func getStatus(callback: (ServiceStatus) -> Void){
