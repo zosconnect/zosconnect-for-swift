@@ -87,7 +87,8 @@ public class ZosConnect {
         try response?.readAllData(data)
         let json = JSON(data: data)
         if let basePath = json["apiUrl"].string {
-          callback(Api(connection:self, apiName:apiName, basePath:basePath))
+          let documentation = json["documentation"]
+          callback(Api(connection:self, apiName:apiName, basePath:basePath, documentation: documentation))
         }
       } catch let error {
         print("got an error creating the request: \(error)")

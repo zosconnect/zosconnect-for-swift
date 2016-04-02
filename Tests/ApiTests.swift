@@ -28,9 +28,9 @@ class Api: XCTestCase {
   
   func testGetApiDoc() {
     zosConnect.getApi("healthApi") { (api) in
-      api?.getApiDoc({ (swagger) in
+      api?.getApiDoc("swagger") { (swagger) in
         XCTAssertNotNil(swagger)
-      })
+      }
     }
   }
   
