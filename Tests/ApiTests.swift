@@ -42,4 +42,12 @@ class Api: XCTestCase {
     }
   }
   
+  func testGetUnknownApiDoc() {
+    zosConnect.getApi("healthApi") { (api) in
+      api?.getApiDoc("raml", callback: { (doc) in
+        XCTAssertNil(doc)
+      })
+    }
+  }
+  
 }
