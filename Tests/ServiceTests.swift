@@ -58,4 +58,13 @@ class ServiceTests: XCTestCase {
     }
   }
   
+  func testInvoke() {
+    zosConnect.getService("dateTimeService") { (service) in
+      service?.invoke(NSData(), callback: { (data) in
+        print(data)
+        XCTAssertNotNil(data)
+      })
+    }
+  }
+  
 }

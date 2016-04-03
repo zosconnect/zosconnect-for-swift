@@ -21,22 +21,39 @@ import KituraNet
 public class Service {
   let connection: ZosConnect
   let serviceName: String
-  let invokeUri: String
+  let invokeUri: UrlParser
 
   public init(connection: ZosConnect, serviceName: String, invokeUri: String) {
     self.connection = connection
     self.serviceName = serviceName
-    self.invokeUri = invokeUri
+    self.invokeUri = UrlParser(url: invokeUri.dataUsingEncoding(NSUTF8StringEncoding)!, isConnect: false)
   }
   
-  func invoke(data: NSData, callback: (NSData?) -> Void){
+  public func invoke(data: NSData, callback: (NSData?) -> Void){
+    var hostPort = Int16(80)
+    if let port = invokeUri.port {
+      hostPort = Int16(port);
+    }
+    Http.request([ClientRequestOptions.Schema(invokeUri.schema!),
+                  ClientRequestOptions.Hostname(invokeUri.host!),
+                  ClientRequestOptions.Port(hostPort),
+                  ClientRequestOptions.Path(invokeUri.path!),
+                  ClientRequestOptions.Method("POST")]) { (response) in
+      let data = NSMutableData()
+      do {
+        try response?.readAllData(data)
+        callback(data)
+      } catch let error {
+        print("got an error creating the request: \(error)")
+        callback(nil)
+      }
+    }
     
   }
   
   public func getRequestSchema(callback: (NSData?) -> Void){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=getRequestSchema"
-    print(uri)
     Http.get(uri) { (response) in
       let data = NSMutableData()
       do {
@@ -52,7 +69,6 @@ public class Service {
   public func getResponseSchema(callback: (NSData?) -> Void){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=getResponseSchema"
-    print(uri)
     Http.get(uri) { (response) in
       let data = NSMutableData()
       do {
@@ -68,7 +84,6 @@ public class Service {
   public func getStatus(callback: (ServiceStatus) -> Void){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=status"
-    print(uri)
     Http.get(uri) { (response) in
       let data = NSMutableData()
       do {
