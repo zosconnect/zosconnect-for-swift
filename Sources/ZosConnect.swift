@@ -55,19 +55,25 @@ public class ZosConnect {
     })
   }
 
-  public func getService(serviceName: String, callback: (Service?) -> Void) {
+  public func getService(serviceName: String, callback: (inner: () throws -> Service) -> Void) {
     Http.get(hostName + ":" + String(port) + "/zosConnect/services/" + serviceName, callback: {(response) -> Void in
       let data = NSMutableData()
       do {
-        try response?.readAllData(data)
-        let json = JSON(data: data)
-        if let invokeUri = json["zosConnect"]["serviceInvokeURL"].string {
-          callback(Service(connection:self, serviceName:serviceName, invokeUri:invokeUri))
+        if let localResponse = response {
+          if localResponse.statusCode == HttpStatusCode.OK {
+            try localResponse.readAllData(data)
+            let json = JSON(data: data)
+            if let invokeUri = json["zosConnect"]["serviceInvokeURL"].string {
+              callback(inner: {return Service(connection:self, serviceName:serviceName, invokeUri:invokeUri)})
+            }
+          } else if localResponse.statusCode == HttpStatusCode.NOT_FOUND {
+            callback(inner: {throw ZosConnectErrors.UNKNOWNSERVICE})
+          } else {
+            callback(inner: {throw ZosConnectErrors.SERVERERROR(localResponse.status)})
+          }
         }
-        
       } catch let error {
-        print("got an error creating the request: \(error)")
-        callback(nil)
+        callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
       }
     })
   }
@@ -112,4 +118,11 @@ public class ZosConnect {
       }
     })
   }
+}
+
+// MARK: Error types
+
+public enum ZosConnectErrors : ErrorType {
+  case UNKNOWNSERVICE, UNKNOWNAPI
+  case CONNECTIONERROR(ErrorType), SERVERERROR(Int)
 }

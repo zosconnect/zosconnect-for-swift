@@ -21,41 +21,46 @@ import XCTest
 @testable import zosconnectforswift
 
 class ZosConnectTests: XCTestCase {
-    
-    let zosConnect = ZosConnect(hostName: "http://zosconnectmock.mybluemix.net", port: 80)
-
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+  
+  let zosConnect = ZosConnect(hostName: "http://zosconnectmock.mybluemix.net", port: 80)
+  
+  override func setUp() {
+    super.setUp()
+    // Put setup code here. This method is called before the invocation of each test method in the class.
+  }
+  
+  override func tearDown() {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    super.tearDown()
+  }
+  
+  func testGetServices() {
+    zosConnect.getServices { (services) in
+      XCTAssert(services[0] == "dateTimeService")
     }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
+  }
+  
+  func testGetService() {
+    zosConnect.getService("dateTimeService") { (inner: () throws -> Service) -> Void in
+      do {
+        let service = try inner()
+        XCTAssertNotNil(service)
+      } catch let error {
+        XCTFail(String(error))
+      }
     }
-
-    func testGetServices() {
-        zosConnect.getServices { (services) in
-            XCTAssert(services[0] == "dateTimeService")
-        }
+  }
+  
+  func testGetApis() {
+    zosConnect.getApis { (apis) in
+      XCTAssert(apis[0] == "healthApi")
     }
-    
-    func testGetService() {
-        zosConnect.getService("dateTimeService") { (service) in
-            XCTAssertNotNil(service)
-        }
+  }
+  
+  func testGetApi() {
+    zosConnect.getApi("healthApi") { (api) in
+      XCTAssertNotNil(api)
     }
-    
-    func testGetApis() {
-        zosConnect.getApis { (apis) in
-            XCTAssert(apis[0] == "healthApi")
-        }
-    }
-    
-    func testGetApi() {
-        zosConnect.getApi("healthApi") { (api) in
-            XCTAssertNotNil(api)
-        }
-    }
-
+  }
+  
 }
