@@ -35,13 +35,18 @@ class ZosConnectTests: XCTestCase {
   }
   
   func testGetServices() {
-    zosConnect.getServices { (services) in
-      XCTAssert(services[0] == "dateTimeService")
-    }
+    zosConnect.getServices({ (inner) in
+      do {
+        let services = try inner()
+        XCTAssert(services[0] == "dateTimeService")
+      } catch let error {
+        XCTFail(String(error))
+      }
+    })
   }
   
   func testGetService() {
-    zosConnect.getService("dateTimeService") { (inner: () throws -> Service) -> Void in
+    zosConnect.getService("dateTimeService") { (inner) in
       do {
         let service = try inner()
         XCTAssertNotNil(service)

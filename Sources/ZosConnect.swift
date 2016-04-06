@@ -33,7 +33,7 @@ public class ZosConnect {
 
   // MARK: Service calls
 
-  public func getServices(callback: ([String]) -> Void) {
+  public func getServices(callback: (inner: () throws -> [String]) -> Void) {
     Http.get(hostName + ":" + String(port) + "/zosConnect/services", callback:{(response)-> Void in
       let data = NSMutableData()
       do {
@@ -46,11 +46,10 @@ public class ZosConnect {
               services.append(serviceName)
             }
           }
-          callback(services)
+          callback(inner: {services})
         }
       } catch let error {
-        print("got an error creating the request: \(error)")
-        callback([])
+        callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
       }
     })
   }
