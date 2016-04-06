@@ -79,7 +79,7 @@ public class ZosConnect {
 
   // MARK: API calls
 
-  public func getApis(callback: ([String]) -> Void) {
+  public func getApis(callback: (inner: () throws -> [String]) -> Void) {
     Http.get(hostName + ":" + String(port) + "/zosConnect/apis", callback: {(response) -> Void in
       let data = NSMutableData()
       do {
@@ -93,27 +93,33 @@ public class ZosConnect {
             }
           }
         }
-        callback(apis)
+        callback(inner: {return apis})
       } catch let error {
-        print("got an error creating the request: \(error)")
-        callback([])
+        callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
       }
     })
   }
 
-  public func getApi(apiName: String, callback: (Api?) -> Void) {
+  public func getApi(apiName: String, callback: (inner: () throws -> Api) -> Void) {
     Http.get(hostName + ":" + String(port) + "/zosConnect/apis/" + apiName, callback: {(response) -> Void in
       let data = NSMutableData()
       do {
-        try response?.readAllData(data)
-        let json = JSON(data: data)
-        if let basePath = json["apiUrl"].string {
-          let documentation = json["documentation"]
-          callback(Api(connection:self, apiName:apiName, basePath:basePath, documentation: documentation))
+        if let localResponse = response {
+          if localResponse.statusCode == HttpStatusCode.OK {
+            try localResponse.readAllData(data)
+            let json = JSON(data: data)
+            if let basePath = json["apiUrl"].string {
+              let documentation = json["documentation"]
+              callback(inner: {return Api(connection:self, apiName:apiName, basePath:basePath, documentation: documentation)})
+            }
+          } else if localResponse.statusCode == HttpStatusCode.NOT_FOUND {
+            callback(inner: {throw ZosConnectErrors.UNKNOWNAPI})
+          } else {
+            callback(inner: {throw ZosConnectErrors.SERVERERROR(localResponse.status)})
+          }
         }
       } catch let error {
-        print("got an error creating the request: \(error)")
-        callback(nil)
+        callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
       }
     })
   }

@@ -35,18 +35,26 @@ class Api: XCTestCase {
   }
   
   func testGetApiDoc() {
-    zosConnect.getApi("healthApi") { (api) in
-      api?.getApiDoc("swagger") { (swagger) in
-        XCTAssertNotNil(swagger)
+    zosConnect.getApi("healthApi") { (inner) in
+      do {
+        try inner().getApiDoc("swagger") { (swagger) in
+          XCTAssertNotNil(swagger)
+        }
+      }catch let error {
+        XCTFail(String(error))
       }
     }
   }
   
   func testGetUnknownApiDoc() {
-    zosConnect.getApi("healthApi") { (api) in
-      api?.getApiDoc("raml", callback: { (doc) in
-        XCTAssertNil(doc)
-      })
+    zosConnect.getApi("healthApi") { (inner) in
+      do {
+        try inner().getApiDoc("raml", callback: { (doc) in
+          XCTAssertNil(doc)
+        })
+      } catch let error {
+        XCTFail(String(error))
+      }
     }
   }
   
