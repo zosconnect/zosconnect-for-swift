@@ -80,8 +80,14 @@ public class Service {
       let data = NSMutableData()
       do {
         if let localresponse = response {
-          try localresponse.readAllData(data)
-          callback(inner: {return data})
+          if localresponse.statusCode == HttpStatusCode.OK {
+            try localresponse.readAllData(data)
+            callback(inner: {return data})
+          } else if localresponse.statusCode == HttpStatusCode.NOT_FOUND {
+            callback(inner: {throw ZosConnectErrors.UNKNOWNSERVICE})
+          } else {
+            callback(inner: {throw ZosConnectErrors.SERVERERROR(localresponse.status)})
+          }
         }
       } catch let error {
         callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
