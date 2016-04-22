@@ -51,32 +51,40 @@ public class Service {
     
   }
   
-  public func getRequestSchema(callback: (NSData?) -> Void){
+  public func getRequestSchema(callback: (inner: () throws -> NSData) -> Void){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=getRequestSchema"
     Http.get(uri) { (response) in
       let data = NSMutableData()
       do {
-        try response?.readAllData(data)
-        callback(data)
+        if let localresponse = response {
+          if localresponse.statusCode == HttpStatusCode.OK {
+            try localresponse.readAllData(data)
+            callback(inner: {return data})
+          } else if localresponse.statusCode == HttpStatusCode.NOT_FOUND {
+            callback(inner: {throw ZosConnectErrors.UNKNOWNSERVICE})
+          } else {
+            callback(inner: {throw ZosConnectErrors.SERVERERROR(localresponse.status)})
+          }
+        }
       } catch let error {
-        print("got an error creating the request: \(error)")
-        callback(nil)
+        callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
       }
     }
   }
   
-  public func getResponseSchema(callback: (NSData?) -> Void){
+  public func getResponseSchema(callback: (inner: () throws -> NSData) -> Void){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=getResponseSchema"
     Http.get(uri) { (response) in
       let data = NSMutableData()
       do {
-        try response?.readAllData(data)
-        callback(data)
+        if let localresponse = response {
+          try localresponse.readAllData(data)
+          callback(inner: {return data})
+        }
       } catch let error {
-        print("got an error creating the request: \(error)")
-        callback(nil)
+        callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
       }
     }
   }
