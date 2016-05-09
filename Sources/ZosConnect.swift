@@ -33,8 +33,9 @@ public class ZosConnect {
 
   // MARK: Service calls
 
-  public func getServices(callback: (inner: () throws -> [String]) -> Void) {
+  public func getServices(result: ListCallback) {
     Http.get(hostName + ":" + String(port) + "/zosConnect/services", callback:{(response)-> Void in
+      let resultObj = ZosConnectResult<[String]>()
       let data = NSMutableData()
       do {
         try response?.readAllData(data)
@@ -46,11 +47,12 @@ public class ZosConnect {
               services.append(serviceName)
             }
           }
-          callback(inner: {services})
         }
+        resultObj.result = services
       } catch let error {
-        callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
+        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
       }
+      result(response: resultObj)
     })
   }
 
@@ -79,8 +81,9 @@ public class ZosConnect {
 
   // MARK: API calls
 
-  public func getApis(callback: (inner: () throws -> [String]) -> Void) {
+  public func getApis(result: ListCallback) {
     Http.get(hostName + ":" + String(port) + "/zosConnect/apis", callback: {(response) -> Void in
+      let resultObj = ZosConnectResult<[String]>()
       let data = NSMutableData()
       do {
         try response?.readAllData(data)
@@ -93,10 +96,11 @@ public class ZosConnect {
             }
           }
         }
-        callback(inner: {return apis})
+        resultObj.result = apis;
       } catch let error {
-        callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
+        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
       }
+      result(response: resultObj)
     })
   }
 
@@ -131,3 +135,7 @@ public enum ZosConnectErrors : ErrorType {
   case UNKNOWNSERVICE, UNKNOWNAPI
   case CONNECTIONERROR(ErrorType), SERVERERROR(Int)
 }
+
+// MARK: Response closure
+public typealias ResultCallback = (response: ZosConnectResult<NSData>?) -> Void
+public typealias ListCallback = (response: ZosConnectResult<[String]>?) -> Void
