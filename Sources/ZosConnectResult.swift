@@ -12,7 +12,7 @@ import KituraNet
 public class ZosConnectResult<T> {
     var error: ErrorType?
     var result: T?
-    var statusCode: HttpStatusCode?
+    var statusCode: Int?
     
     public init(){
         error = nil;

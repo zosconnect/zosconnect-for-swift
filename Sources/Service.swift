@@ -29,7 +29,7 @@ public class Service {
     self.invokeUri = UrlParser(url: invokeUri.dataUsingEncoding(NSUTF8StringEncoding)!, isConnect: false)
   }
   
-  public func invoke(data: NSData, callback: (NSData?) -> Void){
+  public func invoke(data: NSData, callback: DataCallback){
     var hostPort = Int16(80)
     if let port = invokeUri.port {
       hostPort = Int16(port);
@@ -40,13 +40,17 @@ public class Service {
                   ClientRequestOptions.Path(invokeUri.path!),
                   ClientRequestOptions.Method("POST")]) { (response) in
       let data = NSMutableData()
+      let resultObj = ZosConnectResult<NSData>()
       do {
-        try response?.readAllData(data)
-        callback(data)
+        if let localresponse = response {
+          resultObj.statusCode = localresponse.status
+          try localresponse.readData(data)
+          resultObj.result = data
+        }
       } catch let error {
-        print("got an error creating the request: \(error)")
-        callback(nil)
+        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
       }
+      callback(response: resultObj)
     }
     
   }

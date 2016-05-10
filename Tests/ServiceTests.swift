@@ -60,8 +60,9 @@ class ServiceTests: XCTestCase {
   
   func testInvoke() {
     zosConnect.getService("dateTimeService") { result in
-      result.result!.invoke(NSData(), callback: { (data) in
-        XCTAssertNotNil(data)
+      result.result!.invoke(NSData(), callback: { result in
+        XCTAssertEqual(result.statusCode, 200)
+        XCTAssertNotNil(result.result)
       })
     }
   }
