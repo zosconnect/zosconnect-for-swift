@@ -67,14 +67,8 @@ class ZosConnectTests: XCTestCase {
   }
   
   func testGetApi() {
-    zosConnect.getApi("healthApi") { (inner) in
-      do {
-        let api = try inner()
-        XCTAssertNotNil(api)
-      } catch let error {
-        XCTFail(String(error))
-      }
-      
+    zosConnect.getApi("healthApi") { result in
+      XCTAssertNotNil(result.result)
     }
   }
   

@@ -106,8 +106,9 @@ public class ZosConnect {
     })
   }
 
-  public func getApi(apiName: String, callback: (inner: () throws -> Api) -> Void) {
+  public func getApi(apiName: String, result: ApiCallback) {
     Http.get(hostName + ":" + String(port) + "/zosConnect/apis/" + apiName, callback: {(response) -> Void in
+      let resultObj = ZosConnectResult<Api>()
       let data = NSMutableData()
       do {
         if let localResponse = response {
@@ -116,16 +117,16 @@ public class ZosConnect {
             let json = JSON(data: data)
             if let basePath = json["apiUrl"].string {
               let documentation = json["documentation"]
-              callback(inner: {return Api(connection:self, apiName:apiName, basePath:basePath, documentation: documentation)})
+              resultObj.result = Api(connection:self, apiName:apiName, basePath:basePath, documentation: documentation)
             }
           } else if localResponse.statusCode == HttpStatusCode.NOT_FOUND {
-            callback(inner: {throw ZosConnectErrors.UNKNOWNAPI})
+            resultObj.error = ZosConnectErrors.UNKNOWNAPI
           } else {
-            callback(inner: {throw ZosConnectErrors.SERVERERROR(localResponse.status)})
+            resultObj.error = ZosConnectErrors.SERVERERROR(localResponse.status)
           }
         }
       } catch let error {
-        callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
+        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
       }
     })
   }
@@ -139,6 +140,8 @@ public enum ZosConnectErrors : ErrorType {
 }
 
 // MARK: Response closure
+
 public typealias ResultCallback = (response: ZosConnectResult<NSData>) -> Void
 public typealias ListCallback = (response: ZosConnectResult<[String]>) -> Void
 public typealias ServiceCallback = (response: ZosConnectResult<Service>) -> Void
+public typealias ApiCallback = (response: ZosConnectResult<Api>) -> Void
