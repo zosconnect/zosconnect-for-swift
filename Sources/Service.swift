@@ -51,47 +51,51 @@ public class Service {
     
   }
   
-  public func getRequestSchema(callback: (inner: () throws -> NSData) -> Void){
+  public func getRequestSchema(callback: DataCallback){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=getRequestSchema"
     Http.get(uri) { (response) in
+      let resultObj = ZosConnectResult<NSData>()
       let data = NSMutableData()
       do {
         if let localresponse = response {
           if localresponse.statusCode == HttpStatusCode.OK {
             try localresponse.readAllData(data)
-            callback(inner: {return data})
+            resultObj.result = data
           } else if localresponse.statusCode == HttpStatusCode.NOT_FOUND {
-            callback(inner: {throw ZosConnectErrors.UNKNOWNSERVICE})
+            resultObj.error = ZosConnectErrors.UNKNOWNSERVICE
           } else {
-            callback(inner: {throw ZosConnectErrors.SERVERERROR(localresponse.status)})
+            resultObj.error = ZosConnectErrors.SERVERERROR(localresponse.status)
           }
         }
       } catch let error {
-        callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
+        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
       }
+      callback(response: resultObj)
     }
   }
   
-  public func getResponseSchema(callback: (inner: () throws -> NSData) -> Void){
+  public func getResponseSchema(callback: DataCallback){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=getResponseSchema"
     Http.get(uri) { (response) in
+      let resultObj = ZosConnectResult<NSData>()
       let data = NSMutableData()
       do {
         if let localresponse = response {
           if localresponse.statusCode == HttpStatusCode.OK {
             try localresponse.readAllData(data)
-            callback(inner: {return data})
+            resultObj.result = data
           } else if localresponse.statusCode == HttpStatusCode.NOT_FOUND {
-            callback(inner: {throw ZosConnectErrors.UNKNOWNSERVICE})
+            resultObj.error = ZosConnectErrors.UNKNOWNSERVICE
           } else {
-            callback(inner: {throw ZosConnectErrors.SERVERERROR(localresponse.status)})
+            resultObj.error = ZosConnectErrors.SERVERERROR(localresponse.status)
           }
         }
       } catch let error {
-        callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
+        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
       }
+      callback(response: resultObj)
     }
   }
   

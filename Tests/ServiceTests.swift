@@ -44,16 +44,16 @@ class ServiceTests: XCTestCase {
   
   func testGetRequestSchema() {
     zosConnect.getService("dateTimeService") { result in
-      result.result!.getRequestSchema({ (schema) in
-        XCTAssertNotNil(schema)
+      result.result!.getRequestSchema({ result in
+        XCTAssertNotNil(result.result)
       })
     }
   }
   
   func testGetResponseSchema() {
     zosConnect.getService("dateTimeService") { result in
-      result.result!.getResponseSchema({ (schema) in
-        XCTAssertNotNil(schema)
+      result.result!.getResponseSchema({ result in
+        XCTAssertNotNil(result.result)
       })
     }
   }

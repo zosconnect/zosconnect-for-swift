@@ -141,7 +141,7 @@ public enum ZosConnectErrors : ErrorType {
 
 // MARK: Response closure
 
-public typealias ResultCallback = (response: ZosConnectResult<NSData>) -> Void
+public typealias DataCallback = (response: ZosConnectResult<NSData>) -> Void
 public typealias ListCallback = (response: ZosConnectResult<[String]>) -> Void
 public typealias ServiceCallback = (response: ZosConnectResult<Service>) -> Void
 public typealias ApiCallback = (response: ZosConnectResult<Api>) -> Void
