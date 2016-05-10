@@ -36,10 +36,10 @@ class ZosConnectTests: XCTestCase {
   
   func testGetServices() {
     zosConnect.getServices({ result in
-      if ((result?.error) != nil) {
-        XCTFail(String(result?.error!))
-      } else if ((result?.result) != nil) {
-        var services = (result?.result)!
+      if ((result.error) != nil) {
+        XCTFail(String(result.error!))
+      } else if ((result.result) != nil) {
+        var services = (result.result)!
         XCTAssert(services[0] == "dateTimeService")
       } else {
         XCTFail("No data returned from call")
@@ -48,22 +48,17 @@ class ZosConnectTests: XCTestCase {
   }
   
   func testGetService() {
-    zosConnect.getService("dateTimeService") { (inner) in
-      do {
-        let service = try inner()
-        XCTAssertNotNil(service)
-      } catch let error {
-        XCTFail(String(error))
-      }
+    zosConnect.getService("dateTimeService") { result in
+      XCTAssertNotNil(result.result)
     }
   }
   
   func testGetApis() {
     zosConnect.getApis({ result in
-      if ((result?.error) != nil) {
-        XCTFail(String(result?.error!))
-      } else if ((result?.result) != nil) {
-        var apis = (result?.result)!
+      if ((result.error) != nil) {
+        XCTFail(String(result.error!))
+      } else if ((result.result) != nil) {
+        var apis = (result.result)!
         XCTAssert(apis[0] == "healthApi")
       } else {
         XCTFail("No data returned from call")

@@ -56,8 +56,9 @@ public class ZosConnect {
     })
   }
 
-  public func getService(serviceName: String, callback: (inner: () throws -> Service) -> Void) {
+  public func getService(serviceName: String, result: ServiceCallback) {
     Http.get(hostName + ":" + String(port) + "/zosConnect/services/" + serviceName, callback: {(response) -> Void in
+      let resultObj = ZosConnectResult<Service>()
       let data = NSMutableData()
       do {
         if let localResponse = response {
@@ -65,17 +66,18 @@ public class ZosConnect {
             try localResponse.readAllData(data)
             let json = JSON(data: data)
             if let invokeUri = json["zosConnect"]["serviceInvokeURL"].string {
-              callback(inner: {return Service(connection:self, serviceName:serviceName, invokeUri:invokeUri)})
+              resultObj.result = Service(connection:self, serviceName:serviceName, invokeUri:invokeUri)
             }
           } else if localResponse.statusCode == HttpStatusCode.NOT_FOUND {
-            callback(inner: {throw ZosConnectErrors.UNKNOWNSERVICE})
+            resultObj.error = ZosConnectErrors.UNKNOWNSERVICE
           } else {
-            callback(inner: {throw ZosConnectErrors.SERVERERROR(localResponse.status)})
+            resultObj.error = ZosConnectErrors.SERVERERROR(localResponse.status)
           }
         }
       } catch let error {
-        callback(inner: {throw ZosConnectErrors.CONNECTIONERROR(error)})
+        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
       }
+      result(response: resultObj)
     })
   }
 
@@ -137,5 +139,6 @@ public enum ZosConnectErrors : ErrorType {
 }
 
 // MARK: Response closure
-public typealias ResultCallback = (response: ZosConnectResult<NSData>?) -> Void
-public typealias ListCallback = (response: ZosConnectResult<[String]>?) -> Void
+public typealias ResultCallback = (response: ZosConnectResult<NSData>) -> Void
+public typealias ListCallback = (response: ZosConnectResult<[String]>) -> Void
+public typealias ServiceCallback = (response: ZosConnectResult<Service>) -> Void

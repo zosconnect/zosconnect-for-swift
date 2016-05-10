@@ -35,50 +35,34 @@ class ServiceTests: XCTestCase {
   }
   
   func testGetStatus() {
-    zosConnect.getService("dateTimeService") { (inner: () throws -> Service) -> Void in
-      do {
-        try inner().getStatus({ (status) in
-          XCTAssertEqual(status, ServiceStatus.STARTED)
-        })
-      } catch let error {
-        XCTFail(String(error))
-      }
+    zosConnect.getService("dateTimeService") { result in
+      result.result!.getStatus({ (status) in
+        XCTAssertEqual(status, ServiceStatus.STARTED)
+      })
     }
   }
   
   func testGetRequestSchema() {
-    zosConnect.getService("dateTimeService") { (inner: () throws -> Service) -> Void in
-      do {
-        try inner().getRequestSchema({ (schema) in
-          XCTAssertNotNil(schema)
-        })
-      } catch let error {
-        XCTFail(String(error))
-      }
+    zosConnect.getService("dateTimeService") { result in
+      result.result!.getRequestSchema({ (schema) in
+        XCTAssertNotNil(schema)
+      })
     }
   }
   
   func testGetResponseSchema() {
-    zosConnect.getService("dateTimeService") { (inner: () throws -> Service) -> Void in
-      do {
-        try inner().getResponseSchema({ (schema) in
-          XCTAssertNotNil(schema)
-        })
-      } catch let error {
-        XCTFail(String(error))
-      }
+    zosConnect.getService("dateTimeService") { result in
+      result.result!.getResponseSchema({ (schema) in
+        XCTAssertNotNil(schema)
+      })
     }
   }
   
   func testInvoke() {
-    zosConnect.getService("dateTimeService") { (inner: () throws -> Service) -> Void in
-      do {
-        try inner().invoke(NSData(), callback: { (data) in
-          XCTAssertNotNil(data)
-        })
-      } catch let error {
-        XCTFail(String(error))
-      }
+    zosConnect.getService("dateTimeService") { result in
+      result.result!.invoke(NSData(), callback: { (data) in
+        XCTAssertNotNil(data)
+      })
     }
   }
 }
