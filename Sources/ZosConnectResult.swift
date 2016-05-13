@@ -10,7 +10,7 @@ import Foundation
 import KituraNet
 
 public class ZosConnectResult<T> {
-    var error: ErrorType?
+    var error: ErrorProtocol?
     var result: T?
     var statusCode: Int?
     

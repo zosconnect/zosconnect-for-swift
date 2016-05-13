@@ -34,11 +34,11 @@ public class ZosConnect {
   // MARK: Service calls
 
   public func getServices(result: ListCallback) {
-    Http.get(hostName + ":" + String(port) + "/zosConnect/services", callback:{(response)-> Void in
+    HTTP.get(hostName + ":" + String(port) + "/zosConnect/services", callback:{(response)-> Void in
       let resultObj = ZosConnectResult<[String]>()
       let data = NSMutableData()
       do {
-        try response?.readAllData(data)
+        try response?.readAllData(into: data)
         let json = JSON(data: data)
         var services = [String]()
         if let serviceList = json["zosConnectServices"].array {
@@ -57,18 +57,18 @@ public class ZosConnect {
   }
 
   public func getService(serviceName: String, result: ServiceCallback) {
-    Http.get(hostName + ":" + String(port) + "/zosConnect/services/" + serviceName, callback: {(response) -> Void in
+    HTTP.get(hostName + ":" + String(port) + "/zosConnect/services/" + serviceName, callback: {(response) -> Void in
       let resultObj = ZosConnectResult<Service>()
       let data = NSMutableData()
       do {
         if let localResponse = response {
-          if localResponse.statusCode == HttpStatusCode.OK {
-            try localResponse.readAllData(data)
+          if localResponse.statusCode == HTTPStatusCode.OK {
+            try localResponse.readAllData(into: data)
             let json = JSON(data: data)
             if let invokeUri = json["zosConnect"]["serviceInvokeURL"].string {
               resultObj.result = Service(connection:self, serviceName:serviceName, invokeUri:invokeUri)
             }
-          } else if localResponse.statusCode == HttpStatusCode.NOT_FOUND {
+          } else if localResponse.statusCode == HTTPStatusCode.notFound {
             resultObj.error = ZosConnectErrors.UNKNOWNSERVICE
           } else {
             resultObj.error = ZosConnectErrors.SERVERERROR(localResponse.status)
@@ -84,11 +84,11 @@ public class ZosConnect {
   // MARK: API calls
 
   public func getApis(result: ListCallback) {
-    Http.get(hostName + ":" + String(port) + "/zosConnect/apis", callback: {(response) -> Void in
+    HTTP.get(hostName + ":" + String(port) + "/zosConnect/apis", callback: {(response) -> Void in
       let resultObj = ZosConnectResult<[String]>()
       let data = NSMutableData()
       do {
-        try response?.readAllData(data)
+        try response?.readAllData(into: data)
         let json = JSON(data: data)
         var apis = [String]()
         if let apiList = json["apis"].array {
@@ -107,19 +107,19 @@ public class ZosConnect {
   }
 
   public func getApi(apiName: String, result: ApiCallback) {
-    Http.get(hostName + ":" + String(port) + "/zosConnect/apis/" + apiName, callback: {(response) -> Void in
+    HTTP.get(hostName + ":" + String(port) + "/zosConnect/apis/" + apiName, callback: {(response) -> Void in
       let resultObj = ZosConnectResult<Api>()
       let data = NSMutableData()
       do {
         if let localResponse = response {
-          if localResponse.statusCode == HttpStatusCode.OK {
-            try localResponse.readAllData(data)
+          if localResponse.statusCode == HTTPStatusCode.OK {
+            try localResponse.readAllData(into: data)
             let json = JSON(data: data)
             if let basePath = json["apiUrl"].string {
               let documentation = json["documentation"]
               resultObj.result = Api(connection:self, apiName:apiName, basePath:basePath, documentation: documentation)
             }
-          } else if localResponse.statusCode == HttpStatusCode.NOT_FOUND {
+          } else if localResponse.statusCode == HTTPStatusCode.notFound {
             resultObj.error = ZosConnectErrors.UNKNOWNAPI
           } else {
             resultObj.error = ZosConnectErrors.SERVERERROR(localResponse.status)
@@ -134,9 +134,9 @@ public class ZosConnect {
 
 // MARK: Error types
 
-public enum ZosConnectErrors : ErrorType {
+public enum ZosConnectErrors : ErrorProtocol {
   case UNKNOWNSERVICE, UNKNOWNAPI
-  case CONNECTIONERROR(ErrorType), SERVERERROR(Int)
+  case CONNECTIONERROR(ErrorProtocol), SERVERERROR(Int)
 }
 
 // MARK: Response closure
