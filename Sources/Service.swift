@@ -21,12 +21,12 @@ import KituraNet
 public class Service {
   let connection: ZosConnect
   let serviceName: String
-  let invokeUri: UrlParser
+  let invokeUri: URLParser
 
   public init(connection: ZosConnect, serviceName: String, invokeUri: String) {
     self.connection = connection
     self.serviceName = serviceName
-    self.invokeUri = UrlParser(url: invokeUri.dataUsingEncoding(NSUTF8StringEncoding)!, isConnect: false)
+    self.invokeUri = URLParser(url: invokeUri.data(using: NSUTF8StringEncoding)!, isConnect: false)
   }
   
   public func invoke(data: NSData, callback: (NSData?) -> Void){
@@ -34,14 +34,14 @@ public class Service {
     if let port = invokeUri.port {
       hostPort = Int16(port);
     }
-    Http.request([ClientRequestOptions.Schema(invokeUri.schema!),
-                  ClientRequestOptions.Hostname(invokeUri.host!),
-                  ClientRequestOptions.Port(hostPort),
-                  ClientRequestOptions.Path(invokeUri.path!),
-                  ClientRequestOptions.Method("POST")]) { (response) in
+    HTTP.request([ClientRequestOptions.schema(invokeUri.schema!),
+                  ClientRequestOptions.hostname(invokeUri.host!),
+                  ClientRequestOptions.port(hostPort),
+                  ClientRequestOptions.path(invokeUri.path!),
+                  ClientRequestOptions.method("POST")]) { (response) in
       let data = NSMutableData()
       do {
-        try response?.readAllData(data)
+        try response?.readAllData(into: data)
         callback(data)
       } catch let error {
         print("got an error creating the request: \(error)")
@@ -54,14 +54,14 @@ public class Service {
   public func getRequestSchema(callback: (inner: () throws -> NSData) -> Void){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=getRequestSchema"
-    Http.get(uri) { (response) in
+    HTTP.get(uri) { (response) in
       let data = NSMutableData()
       do {
         if let localresponse = response {
-          if localresponse.statusCode == HttpStatusCode.OK {
-            try localresponse.readAllData(data)
+          if localresponse.statusCode == HTTPStatusCode.OK {
+            try localresponse.readAllData(into: data)
             callback(inner: {return data})
-          } else if localresponse.statusCode == HttpStatusCode.NOT_FOUND {
+          } else if localresponse.statusCode == HTTPStatusCode.notFound {
             callback(inner: {throw ZosConnectErrors.UNKNOWNSERVICE})
           } else {
             callback(inner: {throw ZosConnectErrors.SERVERERROR(localresponse.status)})
@@ -76,14 +76,14 @@ public class Service {
   public func getResponseSchema(callback: (inner: () throws -> NSData) -> Void){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=getResponseSchema"
-    Http.get(uri) { (response) in
+    HTTP.get(uri) { (response) in
       let data = NSMutableData()
       do {
         if let localresponse = response {
-          if localresponse.statusCode == HttpStatusCode.OK {
-            try localresponse.readAllData(data)
+          if localresponse.statusCode == HTTPStatusCode.OK {
+            try localresponse.readAllData(into: data)
             callback(inner: {return data})
-          } else if localresponse.statusCode == HttpStatusCode.NOT_FOUND {
+          } else if localresponse.statusCode == HTTPStatusCode.notFound {
             callback(inner: {throw ZosConnectErrors.UNKNOWNSERVICE})
           } else {
             callback(inner: {throw ZosConnectErrors.SERVERERROR(localresponse.status)})
@@ -98,10 +98,10 @@ public class Service {
   public func getStatus(callback: (ServiceStatus) -> Void){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=status"
-    Http.get(uri) { (response) in
+    HTTP.get(uri) { (response) in
       let data = NSMutableData()
       do {
-        try response?.readAllData(data)
+        try response?.readAllData(into: data)
         let json = JSON(data: data)
         var serviceStatus = ServiceStatus.UNAVAILABLE
         if let status = json["zosConnect"]["serviceStatus"].string {

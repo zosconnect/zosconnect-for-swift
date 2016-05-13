@@ -34,10 +34,10 @@ public class ZosConnect {
   // MARK: Service calls
 
   public func getServices(callback: (inner: () throws -> [String]) -> Void) {
-    Http.get(hostName + ":" + String(port) + "/zosConnect/services", callback:{(response)-> Void in
+    HTTP.get(hostName + ":" + String(port) + "/zosConnect/services", callback:{(response)-> Void in
       let data = NSMutableData()
       do {
-        try response?.readAllData(data)
+        try response?.readAllData(into: data)
         let json = JSON(data: data)
         var services = [String]()
         if let serviceList = json["zosConnectServices"].array {
@@ -55,17 +55,17 @@ public class ZosConnect {
   }
 
   public func getService(serviceName: String, callback: (inner: () throws -> Service) -> Void) {
-    Http.get(hostName + ":" + String(port) + "/zosConnect/services/" + serviceName, callback: {(response) -> Void in
+    HTTP.get(hostName + ":" + String(port) + "/zosConnect/services/" + serviceName, callback: {(response) -> Void in
       let data = NSMutableData()
       do {
         if let localResponse = response {
-          if localResponse.statusCode == HttpStatusCode.OK {
-            try localResponse.readAllData(data)
+          if localResponse.statusCode == HTTPStatusCode.OK {
+            try localResponse.readAllData(into: data)
             let json = JSON(data: data)
             if let invokeUri = json["zosConnect"]["serviceInvokeURL"].string {
               callback(inner: {return Service(connection:self, serviceName:serviceName, invokeUri:invokeUri)})
             }
-          } else if localResponse.statusCode == HttpStatusCode.NOT_FOUND {
+          } else if localResponse.statusCode == HTTPStatusCode.notFound {
             callback(inner: {throw ZosConnectErrors.UNKNOWNSERVICE})
           } else {
             callback(inner: {throw ZosConnectErrors.SERVERERROR(localResponse.status)})
@@ -80,10 +80,10 @@ public class ZosConnect {
   // MARK: API calls
 
   public func getApis(callback: (inner: () throws -> [String]) -> Void) {
-    Http.get(hostName + ":" + String(port) + "/zosConnect/apis", callback: {(response) -> Void in
+    HTTP.get(hostName + ":" + String(port) + "/zosConnect/apis", callback: {(response) -> Void in
       let data = NSMutableData()
       do {
-        try response?.readAllData(data)
+        try response?.readAllData(into: data)
         let json = JSON(data: data)
         var apis = [String]()
         if let apiList = json["apis"].array {
@@ -101,18 +101,18 @@ public class ZosConnect {
   }
 
   public func getApi(apiName: String, callback: (inner: () throws -> Api) -> Void) {
-    Http.get(hostName + ":" + String(port) + "/zosConnect/apis/" + apiName, callback: {(response) -> Void in
+    HTTP.get(hostName + ":" + String(port) + "/zosConnect/apis/" + apiName, callback: {(response) -> Void in
       let data = NSMutableData()
       do {
         if let localResponse = response {
-          if localResponse.statusCode == HttpStatusCode.OK {
-            try localResponse.readAllData(data)
+          if localResponse.statusCode == HTTPStatusCode.OK {
+            try localResponse.readAllData(into: data)
             let json = JSON(data: data)
             if let basePath = json["apiUrl"].string {
               let documentation = json["documentation"]
               callback(inner: {return Api(connection:self, apiName:apiName, basePath:basePath, documentation: documentation)})
             }
-          } else if localResponse.statusCode == HttpStatusCode.NOT_FOUND {
+          } else if localResponse.statusCode == HTTPStatusCode.notFound {
             callback(inner: {throw ZosConnectErrors.UNKNOWNAPI})
           } else {
             callback(inner: {throw ZosConnectErrors.SERVERERROR(localResponse.status)})
@@ -127,7 +127,7 @@ public class ZosConnect {
 
 // MARK: Error types
 
-public enum ZosConnectErrors : ErrorType {
+public enum ZosConnectErrors : ErrorProtocol {
   case UNKNOWNSERVICE, UNKNOWNAPI
-  case CONNECTIONERROR(ErrorType), SERVERERROR(Int)
+  case CONNECTIONERROR(ErrorProtocol), SERVERERROR(Int)
 }
