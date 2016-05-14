@@ -103,30 +103,33 @@ public class Service {
     }
   }
   
-  public func getStatus(callback: (ServiceStatus) -> Void){
+  public func getStatus(callback: StatusCallback){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=status"
     HTTP.get(uri) { (response) in
+      let resultObj = ZosConnectResult<ServiceStatus>()
       let data = NSMutableData()
       do {
         try response?.readAllData(into: data)
         let json = JSON(data: data)
-        var serviceStatus = ServiceStatus.UNAVAILABLE
         if let status = json["zosConnect"]["serviceStatus"].string {
           if status == "Started" {
-            serviceStatus = ServiceStatus.STARTED
+            resultObj.result = ServiceStatus.STARTED
           } else if status == "Stopped" {
-            serviceStatus = ServiceStatus.STOPPED
+            resultObj.result = ServiceStatus.STOPPED
           }
         }
-        callback(serviceStatus)
       } catch let error {
-        print("got an error creating the request: \(error)")
-        callback(ServiceStatus.UNAVAILABLE)
+        resultObj.error = error
       }
+      callback(response: resultObj)  
     }
   }
 }
+
+public typealias StatusCallback = (response: ZosConnectResult<ServiceStatus>) -> Void
+
+// MARK: ServiceStatus enum
 
 public enum ServiceStatus: String {
   case STARTED = "STARTED", STOPPED = "STOPPED", UNAVAILABLE = "UNAVAILABLE"
