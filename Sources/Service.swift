@@ -29,16 +29,15 @@ public class Service {
     self.invokeUri = URLParser(url: invokeUri.data(using: NSUTF8StringEncoding)!, isConnect: false)
   }
   
-  public func invoke(data: NSData, callback: DataCallback){
-    var hostPort = Int16(80)
+  public func invoke(data: NSData?, callback: DataCallback){
+    var options = [ClientRequestOptions.schema(invokeUri.schema!),
+                   ClientRequestOptions.hostname("://" + invokeUri.host!),
+                   ClientRequestOptions.path(invokeUri.path! + "?action=invoke"),
+                   ClientRequestOptions.method("POST")]
     if let port = invokeUri.port {
-      hostPort = Int16(port);
+      options.append(ClientRequestOptions.port(Int16(port)))
     }
-    HTTP.request([ClientRequestOptions.schema(invokeUri.schema!),
-                  ClientRequestOptions.hostname(invokeUri.host!),
-                  ClientRequestOptions.port(hostPort),
-                  ClientRequestOptions.path(invokeUri.path!),
-                  ClientRequestOptions.method("POST")]) { (response) in
+    let req = HTTP.request(options) { (response) in
       let data = NSMutableData()
       let resultObj = ZosConnectResult<NSData>()
       do {
@@ -52,7 +51,11 @@ public class Service {
       }
       callback(response: resultObj)
     }
-    
+    if let requestData = data {
+        req.end(requestData)
+    } else {
+        req.end("{}")
+    }
   }
   
   public func getRequestSchema(callback: DataCallback){

@@ -21,14 +21,44 @@ import KituraNet
 public class Api {
   let connection: ZosConnect
   let apiName: String
-  let basePath: String
+  let basePath: URLParser
   let documentation: JSON
   
   public init(connection: ZosConnect, apiName: String, basePath: String, documentation: JSON) {
     self.connection = connection
     self.apiName = apiName
-    self.basePath = basePath
+    self.basePath = URLParser(url: basePath.data(using: NSUTF8StringEncoding)!, isConnect: false)
     self.documentation = documentation
+  }
+    
+  func invoke(verb: String, resource: String, data: NSData?, callback: DataCallback){
+    var hostPort = Int16(80)
+    if let port = basePath.port {
+      hostPort = Int16(port);
+    }
+    let req = HTTP.request([ClientRequestOptions.schema(basePath.schema!),
+                            ClientRequestOptions.hostname("://" + basePath.host!),
+                            ClientRequestOptions.port(hostPort),
+                            ClientRequestOptions.path(basePath.path! + resource),
+                            ClientRequestOptions.method(verb)]) { (response) in
+      let data = NSMutableData()
+      let resultObj = ZosConnectResult<NSData>()
+      do {
+        if let localresponse = response {
+          resultObj.statusCode = localresponse.status
+          try localresponse.readAllData(into: data)
+          resultObj.result = data
+        }
+      } catch let error {
+        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
+      }
+      callback(response: resultObj)
+    }
+    if let requestData = data {
+      req.end(requestData)
+    } else {
+      req.end()
+    }
   }
   
   func getApiDoc(documentationType: String, callback: (NSData?) -> Void) {
