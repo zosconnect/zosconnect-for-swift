@@ -35,32 +35,32 @@ class ServiceTests: XCTestCase {
   }
   
   func testGetStatus() {
-    zosConnect.getService("dateTimeService") { result in
-      result.result!.getStatus({ (status) in
-        XCTAssertEqual(status, ServiceStatus.STARTED)
+    zosConnect.getService(serviceName: "dateTimeService") { result in
+      result.result!.getStatus(callback: { (result) in
+        XCTAssertEqual(result.result, ServiceStatus.STARTED)
       })
     }
   }
   
   func testGetRequestSchema() {
-    zosConnect.getService("dateTimeService") { result in
-      result.result!.getRequestSchema({ result in
+    zosConnect.getService(serviceName: "dateTimeService") { result in
+      result.result!.getRequestSchema { result in
         XCTAssertNotNil(result.result)
-      })
+      }
     }
   }
   
   func testGetResponseSchema() {
-    zosConnect.getService("dateTimeService") { result in
-      result.result!.getResponseSchema({ result in
+    zosConnect.getService(serviceName: "dateTimeService") { result in
+      result.result!.getResponseSchema { result in
         XCTAssertNotNil(result.result)
-      })
+      }
     }
   }
   
   func testInvoke() {
-    zosConnect.getService("dateTimeService") { result in
-      result.result!.invoke(NSData(), callback: { result in
+    zosConnect.getService(serviceName: "dateTimeService") { result in
+        result.result!.invoke(data: nil, callback: { result in
         XCTAssertEqual(result.statusCode, 200)
         XCTAssertNotNil(result.result)
       })
