@@ -50,4 +50,13 @@ class Api: XCTestCase {
     }
   }
   
+  func testInvoke() {
+    zosConnect.getApi(apiName: "healthApi") { result in
+      result.result!.invoke(verb: "GET", resource: "/patient/12345", data: nil) { result in
+        XCTAssertEqual(result.statusCode, 200)
+        XCTAssertNotNil(result.result)
+      }
+    }
+  }
+  
 }
