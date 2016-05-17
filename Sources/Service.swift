@@ -30,8 +30,8 @@ public class Service {
   }
   
   public func invoke(data: NSData?, callback: DataCallback){
-    var options = [ClientRequestOptions.schema(invokeUri.schema!),
-                   ClientRequestOptions.hostname("://" + invokeUri.host!),
+    var options = [ClientRequestOptions.schema(invokeUri.schema! + "://"),
+                   ClientRequestOptions.hostname(invokeUri.host!),
                    ClientRequestOptions.path(invokeUri.path! + "?action=invoke"),
                    ClientRequestOptions.method("POST")]
     if let port = invokeUri.port {

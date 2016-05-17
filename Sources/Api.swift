@@ -36,8 +36,8 @@ public class Api {
     if let port = basePath.port {
       hostPort = Int16(port);
     }
-    let req = HTTP.request([ClientRequestOptions.schema(basePath.schema!),
-                            ClientRequestOptions.hostname("://" + basePath.host!),
+    let req = HTTP.request([ClientRequestOptions.schema(basePath.schema! + "://"),
+                            ClientRequestOptions.hostname(basePath.host!),
                             ClientRequestOptions.port(hostPort),
                             ClientRequestOptions.path(basePath.path! + resource),
                             ClientRequestOptions.method(verb)]) { (response) in
