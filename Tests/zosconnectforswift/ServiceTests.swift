@@ -20,6 +20,19 @@ import XCTest
 
 @testable import zosconnectforswift
 
+#if os(Linux)
+    extension ServiceTests {
+        static var allTests : [(String, ServiceTests -> () throws -> Void)] {
+            return [
+                       ("testGetStatus", testGetStatus),
+                       ("testGetRequestSchema", testGetRequestSchema),
+                       ("testGetResponseSchema", testGetResponseSchema),
+                       ("testInvoke", testInvoke)
+            ]
+        }
+    }
+#endif
+
 class ServiceTests: XCTestCase {
   
   let zosConnect = ZosConnect(hostName: "http://zosconnectmock.mybluemix.net", port: 80)
