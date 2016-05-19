@@ -7,4 +7,3 @@ COPY Tests /root/zosconnect-for-swift/Tests
 COPY Package.swift /root/zosconnect-for-swift
 WORKDIR /root/zosconnect-for-swift
 RUN swift build -Xcc -fblocks
-RUN swift test
