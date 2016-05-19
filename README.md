@@ -1,5 +1,7 @@
 ### z/OS&reg; Connect for Swift
 
+[![Build Status](https://travis-ci.org/zosconnect/zosconnect-for-swift.svg?branch=master)](https://travis-ci.org/zosconnect/zosconnect-for-swift)
+
 Swift package for working with APIs and Services managed by z/OS Connect Enterprise Edition (EE).
 
 #### License
