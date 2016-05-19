@@ -6,6 +6,3 @@ services:
 before_install:
   - docker build -t zosconnectforswift .
   - docker run zosconnectforswift /bin/sh -c "swift test"
-
-script:
-  - swift test
