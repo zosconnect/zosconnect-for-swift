@@ -1,10 +1,6 @@
-sudo: required
-
-services:
-  - docker
-
-before_install:
-  - docker build -t zosconnectforswift .
-
+language: objective-c
+osx_image: xcode8.2
+env:
+  - TOOLCHAINS=swift
 script:
-  - docker run zosconnectforswift /bin/sh -c "swift test"
+  - swift test
