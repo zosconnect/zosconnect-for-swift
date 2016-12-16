@@ -18,7 +18,7 @@ import Foundation
 import SwiftyJSON
 import KituraNet
 
-public class Api {
+open class Api {
   let connection: ZosConnect
   let apiName: String
   let basePath: URLParser
@@ -27,32 +27,38 @@ public class Api {
   public init(connection: ZosConnect, apiName: String, basePath: String, documentation: JSON) {
     self.connection = connection
     self.apiName = apiName
-    self.basePath = URLParser(url: basePath.data(using: NSUTF8StringEncoding)!, isConnect: false)
+    self.basePath = URLParser(url: basePath.data(using: String.Encoding.utf8)!, isConnect: false)
     self.documentation = documentation
   }
     
-  func invoke(verb: String, resource: String, data: NSData?, callback: DataCallback){
-    var hostPort = Int16(80)
+  public func invoke(_ verb: String, resource: String, data: Data?, callback: @escaping DataCallback){
+    var hostPort:Int16
     if let port = basePath.port {
       hostPort = Int16(port);
+    } else {
+      if basePath.schema == "https" {
+        hostPort = Int16(443);
+      } else {
+        hostPort = Int16(80);
+      }
     }
-    let req = HTTP.request([ClientRequestOptions.schema(basePath.schema! + "://"),
-                            ClientRequestOptions.hostname(basePath.host!),
-                            ClientRequestOptions.port(hostPort),
-                            ClientRequestOptions.path(basePath.path! + resource),
-                            ClientRequestOptions.method(verb)]) { (response) in
-      let data = NSMutableData()
-      let resultObj = ZosConnectResult<NSData>()
+    let req = HTTP.request([ClientRequest.Options.schema(basePath.schema! + "://"),
+                            ClientRequest.Options.hostname(basePath.host!),
+                            ClientRequest.Options.port(hostPort),
+                            ClientRequest.Options.path(basePath.path! + resource),
+                            ClientRequest.Options.method(verb)]) { (response) in
+      var data = Data()
+      let resultObj = ZosConnectResult<Data>()
       do {
         if let localresponse = response {
           resultObj.statusCode = localresponse.status
-          try localresponse.readAllData(into: data)
+          try localresponse.readAllData(into: &data)
           resultObj.result = data
         }
       } catch let error {
-        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
+        resultObj.error = ZosConnectErrors.connectionerror(error)
       }
-      callback(response: resultObj)
+      callback(resultObj)
     }
     if let requestData = data {
       req.end(requestData)
@@ -61,18 +67,19 @@ public class Api {
     }
   }
   
-  func getApiDoc(documentationType: String, callback: (NSData?) -> Void) {
+  public func getApiDoc(_ documentationType: String, callback: @escaping (Data?) -> Void) {
     if let documentUri = documentation[documentationType].string {
-      HTTP.get(documentUri) { (response) in
-        let data = NSMutableData()
+      let req = HTTP.get(documentUri) { (response) in
+        var data = Data()
         do {
-          try response?.readAllData(into: data)
+          try response?.readAllData(into: &data)
           callback(data)
         } catch let error {
           print("got an error creating the request: \(error)")
           callback(nil)
         }
       }
+      req.end()
     }
   }
 }

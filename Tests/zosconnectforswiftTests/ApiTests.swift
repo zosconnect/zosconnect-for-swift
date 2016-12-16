@@ -47,24 +47,24 @@ class ApiTests: XCTestCase {
   }
   
   func testGetApiDoc() {
-    zosConnect.getApi(apiName: "healthApi") { result in
-      result.result!.getApiDoc(documentationType: "swagger") { (swagger) in
+    zosConnect.getApi("healthApi") { result in
+      result.result!.getApiDoc("swagger") { (swagger) in
         XCTAssertNotNil(swagger)
       }
     }
   }
   
   func testGetUnknownApiDoc() {
-    zosConnect.getApi(apiName: "healthApi") { result in
-      result.result!.getApiDoc(documentationType: "raml", callback: { (doc) in
+    zosConnect.getApi("healthApi") { result in
+      result.result!.getApiDoc("raml", callback: { (doc) in
         XCTAssertNil(doc)
       })
     }
   }
   
   func testInvoke() {
-    zosConnect.getApi(apiName: "healthApi") { result in
-      result.result!.invoke(verb: "GET", resource: "/patient/12345", data: nil) { result in
+    zosConnect.getApi("healthApi") { result in
+      result.result!.invoke("GET", resource: "/patient/12345", data: nil) { result in
         XCTAssertEqual(result.statusCode, 200)
         XCTAssertNotNil(result.result)
       }

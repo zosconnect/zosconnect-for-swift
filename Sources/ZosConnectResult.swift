@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import Swift
 import KituraNet
 
-public class ZosConnectResult<T> {
-    var error: ErrorProtocol?
+open class ZosConnectResult<T> {
+    var error: Swift.Error?
     var result: T?
     var statusCode: Int?
     

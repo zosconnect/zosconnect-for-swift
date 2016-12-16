@@ -4,8 +4,8 @@ let package = Package(
     name: "zosconnectforswift",
     targets: [],
     dependencies: [
-      .Package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", majorVersion: 7),
+      .Package(url: "https://github.com/SwiftyJSON/SwiftyJSON.git", versions: Version(1,0,0)..<Version(3, .max, .max)),
       .Package(url: "https://github.com/IBM-Swift/Kitura-net",
-          majorVersion: 0, minor: 13),
+          majorVersion: 1, minor: 3),
     ]
 )

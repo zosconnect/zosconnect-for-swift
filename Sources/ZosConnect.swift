@@ -18,7 +18,7 @@ import Foundation
 import SwiftyJSON
 import KituraNet
 
-public class ZosConnect {
+open class ZosConnect {
   let hostName: String
   let port: Int32
   let userId: String?
@@ -33,12 +33,12 @@ public class ZosConnect {
 
   // MARK: Service calls
 
-  public func getServices(result: ListCallback) {
-    HTTP.get(hostName + ":" + String(port) + "/zosConnect/services", callback:{(response)-> Void in
+  open func getServices(_ result: @escaping ListCallback) {
+    let req = HTTP.get(hostName + ":" + String(port) + "/zosConnect/services", callback:{(response)-> Void in
       let resultObj = ZosConnectResult<[String]>()
-      let data = NSMutableData()
+      var data = Data()
       do {
-        try response?.readAllData(into: data)
+        try response?.readAllData(into: &data)
         let json = JSON(data: data)
         var services = [String]()
         if let serviceList = json["zosConnectServices"].array {
@@ -50,45 +50,47 @@ public class ZosConnect {
         }
         resultObj.result = services
       } catch let error {
-        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
+        resultObj.error = ZosConnectErrors.connectionerror(error)
       }
-      result(response: resultObj)
+      result(resultObj)
     })
+    req.end()
   }
 
-  public func getService(serviceName: String, result: ServiceCallback) {
-    HTTP.get(hostName + ":" + String(port) + "/zosConnect/services/" + serviceName, callback: {(response) -> Void in
+  open func getService(_ serviceName: String, result: @escaping ServiceCallback) {
+    let req = HTTP.get(hostName + ":" + String(port) + "/zosConnect/services/" + serviceName, callback: {(response) -> Void in
       let resultObj = ZosConnectResult<Service>()
-      let data = NSMutableData()
+      var data = Data()
       do {
         if let localResponse = response {
           if localResponse.statusCode == HTTPStatusCode.OK {
-            try localResponse.readAllData(into: data)
+            try localResponse.readAllData(into: &data)
             let json = JSON(data: data)
             if let invokeUri = json["zosConnect"]["serviceInvokeURL"].string {
               resultObj.result = Service(connection:self, serviceName:serviceName, invokeUri:invokeUri)
             }
           } else if localResponse.statusCode == HTTPStatusCode.notFound {
-            resultObj.error = ZosConnectErrors.UNKNOWNSERVICE
+            resultObj.error = ZosConnectErrors.unknownservice
           } else {
-            resultObj.error = ZosConnectErrors.SERVERERROR(localResponse.status)
+            resultObj.error = ZosConnectErrors.servererror(localResponse.status)
           }
         }
       } catch let error {
-        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
+        resultObj.error = ZosConnectErrors.connectionerror(error)
       }
-      result(response: resultObj)
+      result(resultObj)
     })
+    req.end()
   }
 
   // MARK: API calls
 
-  public func getApis(result: ListCallback) {
-    HTTP.get(hostName + ":" + String(port) + "/zosConnect/apis", callback: {(response) -> Void in
+  open func getApis(_ result: @escaping ListCallback) {
+    let req = HTTP.get(hostName + ":" + String(port) + "/zosConnect/apis", callback: {(response) -> Void in
       let resultObj = ZosConnectResult<[String]>()
-      let data = NSMutableData()
+      var data = Data()
       do {
-        try response?.readAllData(into: data)
+        try response?.readAllData(into: &data)
         let json = JSON(data: data)
         var apis = [String]()
         if let apiList = json["apis"].array {
@@ -100,48 +102,51 @@ public class ZosConnect {
         }
         resultObj.result = apis;
       } catch let error {
-        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
+        resultObj.error = ZosConnectErrors.connectionerror(error)
       }
-      result(response: resultObj)
+      result(resultObj)
     })
+    req.end()
   }
 
-  public func getApi(apiName: String, result: ApiCallback) {
-    HTTP.get(hostName + ":" + String(port) + "/zosConnect/apis/" + apiName, callback: {(response) -> Void in
+  open func getApi(_ apiName: String, result: @escaping ApiCallback) {
+    let req = HTTP.get(hostName + ":" + String(port) + "/zosConnect/apis/" + apiName, callback: {(response) -> Void in
       let resultObj = ZosConnectResult<Api>()
-      let data = NSMutableData()
+      var data = Data()
       do {
         if let localResponse = response {
           if localResponse.statusCode == HTTPStatusCode.OK {
-            try localResponse.readAllData(into: data)
+            try localResponse.readAllData(into: &data)
             let json = JSON(data: data)
             if let basePath = json["apiUrl"].string {
               let documentation = json["documentation"]
               resultObj.result = Api(connection:self, apiName:apiName, basePath:basePath, documentation: documentation)
             }
           } else if localResponse.statusCode == HTTPStatusCode.notFound {
-            resultObj.error = ZosConnectErrors.UNKNOWNAPI
+            resultObj.error = ZosConnectErrors.unknownapi
           } else {
-            resultObj.error = ZosConnectErrors.SERVERERROR(localResponse.status)
+            resultObj.error = ZosConnectErrors.servererror(localResponse.status)
           }
         }
       } catch let error {
-        resultObj.error = ZosConnectErrors.CONNECTIONERROR(error)
+        resultObj.error = ZosConnectErrors.connectionerror(error)
       }
+      result(resultObj)
     })
+    req.end();
   }
 }
 
 // MARK: Error types
 
-public enum ZosConnectErrors : ErrorProtocol {
-  case UNKNOWNSERVICE, UNKNOWNAPI
-  case CONNECTIONERROR(ErrorProtocol), SERVERERROR(Int)
+public enum ZosConnectErrors : Swift.Error {
+  case unknownservice, unknownapi
+  case connectionerror(Swift.Error), servererror(Int)
 }
 
 // MARK: Response closure
 
-public typealias DataCallback = (response: ZosConnectResult<NSData>) -> Void
-public typealias ListCallback = (response: ZosConnectResult<[String]>) -> Void
-public typealias ServiceCallback = (response: ZosConnectResult<Service>) -> Void
-public typealias ApiCallback = (response: ZosConnectResult<Api>) -> Void
+public typealias DataCallback = (_ response: ZosConnectResult<Data>) -> Void
+public typealias ListCallback = (_ response: ZosConnectResult<[String]>) -> Void
+public typealias ServiceCallback = (_ response: ZosConnectResult<Service>) -> Void
+public typealias ApiCallback = (_ response: ZosConnectResult<Api>) -> Void
