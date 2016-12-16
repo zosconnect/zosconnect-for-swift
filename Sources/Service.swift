@@ -30,10 +30,21 @@ open class Service {
   }
   
   open func invoke(_ data: Data?, callback: @escaping DataCallback){
+    var hostPort:Int16
+    if let port = invokeUri.port {
+      hostPort = Int16(port);
+    } else {
+      if invokeUri.schema == "https" {
+        hostPort = Int16(443);
+      } else {
+        hostPort = Int16(80);
+      }
+    }
     var options = [ClientRequest.Options.schema(invokeUri.schema! + "://"),
                    ClientRequest.Options.hostname(invokeUri.host!),
+                   ClientRequest.Options.port(hostPort),
                    ClientRequest.Options.path(invokeUri.path! + "?action=invoke"),
-                   ClientRequest.Options.method("POST")]
+                   ClientRequest.Options.method("PUT")]
     if let port = invokeUri.port {
       options.append(ClientRequest.Options.port(Int16(port)))
     }
