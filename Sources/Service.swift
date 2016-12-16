@@ -119,10 +119,23 @@ open class Service {
     req.end()
   }
   
-  open func getStatus(_ callback: @escaping StatusCallback){
-    var uri = connection.hostName + ":" + String(connection.port)
-    uri += "/zosConnect/services/" + serviceName + "?action=status"
-    let req = HTTP.get(uri) { (response) in
+  private func callUriWithStatus(_ uri: String, verb: String, callback: @escaping StatusCallback){
+    let parsedUri = URLParser(url: uri.data(using: String.Encoding.utf8)!, isConnect: false)
+    var hostPort:Int16
+    if let port = parsedUri.port {
+      hostPort = Int16(port);
+    } else {
+      if parsedUri.schema == "https" {
+        hostPort = Int16(443);
+      } else {
+        hostPort = Int16(80);
+      }
+    }
+    let req = HTTP.request([ClientRequest.Options.schema(parsedUri.schema! + "://"),
+                            ClientRequest.Options.hostname(parsedUri.host!),
+                            ClientRequest.Options.port(hostPort),
+                            ClientRequest.Options.path(parsedUri.path! + "?" + parsedUri.query!),
+                            ClientRequest.Options.method(verb)]) { (response) in
       let resultObj = ZosConnectResult<ServiceStatus>()
       var data = Data()
       do {
@@ -138,9 +151,27 @@ open class Service {
       } catch let error {
         resultObj.error = error
       }
-      callback(resultObj)  
+      callback(resultObj)
     }
     req.end()
+  }
+  
+  open func getStatus(_ callback: @escaping StatusCallback){
+    var uri = connection.hostName + ":" + String(connection.port)
+    uri += "/zosConnect/services/" + serviceName + "?action=status"
+    callUriWithStatus(uri, verb: "GET", callback: callback)
+  }
+  
+  open func start(_ callback: @escaping StatusCallback){
+    var uri = connection.hostName + ":" + String(connection.port)
+    uri += "/zosConnect/services/" + serviceName + "?action=start"
+    callUriWithStatus(uri, verb: "PUT", callback: callback)
+  }
+  
+  open func stop(_ callback: @escaping StatusCallback){
+    var uri = connection.hostName + ":" + String(connection.port)
+    uri += "/zosConnect/services/" + serviceName + "?action=stop"
+    callUriWithStatus(uri, verb: "PUT", callback: callback)
   }
 }
 

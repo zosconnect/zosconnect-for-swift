@@ -55,6 +55,22 @@ class ServiceTests: XCTestCase {
     }
   }
   
+  func testStart() {
+    zosConnect.getService("dateTimeService") { result in
+      result.result!.start { result in
+        XCTAssertEqual(result.result, ServiceStatus.STARTED)
+      }
+    }
+  }
+  
+  func testStop() {
+    zosConnect.getService("dateTimeService") { result in
+      result.result!.stop { result in
+        XCTAssertEqual(result.result, ServiceStatus.STOPPED)
+      }
+    }
+  }
+  
   func testGetRequestSchema() {
     zosConnect.getService("dateTimeService") { result in
       result.result!.getRequestSchema { result in
