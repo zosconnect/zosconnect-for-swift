@@ -16,7 +16,7 @@
 
 import XCTest
 
-@testable import zosconnectforswiftTestSuite
+@testable import zosconnectforswiftTests
 
 XCTMain([
          testCase(ZosConnectTests.allTests),

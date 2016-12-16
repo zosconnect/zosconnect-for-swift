@@ -22,13 +22,13 @@ import XCTest
 
 #if os(Linux)
     extension ApiTests {
-        static var allTests : [(String, ApiTests -> () throws -> Void)] {
+        static var allTests = {
             return [
                        ("testGetApiDoc", testGetApiDoc),
                        ("testGetUnknownApiDoc", testGetUnknownApiDoc),
                        ("testInvoke", testInvoke)
             ]
-        }
+        }()
     }
 #endif
 

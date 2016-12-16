@@ -22,14 +22,14 @@ import XCTest
 
 #if os(Linux)
     extension ServiceTests {
-        static var allTests : [(String, ServiceTests -> () throws -> Void)] {
+        static var allTests = {
             return [
                        ("testGetStatus", testGetStatus),
                        ("testGetRequestSchema", testGetRequestSchema),
                        ("testGetResponseSchema", testGetResponseSchema),
                        ("testInvoke", testInvoke)
             ]
-        }
+        }()
     }
 #endif
 

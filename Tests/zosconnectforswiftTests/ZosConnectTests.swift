@@ -22,14 +22,14 @@ import XCTest
 
 #if os(Linux)
   extension ZosConnectTests {
-    static var allTests : [(String, ZosConnectTests -> () throws -> Void)] {
+    static var allTests = {
       return [
                ("testGetServices", testGetServices),
                ("testGetService", testGetService),
                ("testGetApis", testGetApi),
                ("testGetApi", testGetApi)
       ]
-    }
+    }()
   }
 #endif
 
