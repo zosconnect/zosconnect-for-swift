@@ -1,10 +1,38 @@
-### z/OS&reg; Connect for Swift
-
 [![Build Status](https://travis-ci.org/zosconnect/zosconnect-for-swift.svg?branch=master)](https://travis-ci.org/zosconnect/zosconnect-for-swift)
 
-Swift package for working with APIs and Services managed by z/OS Connect Enterprise Edition (EE).
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
 
-#### License
+- [z/OS&reg; Connect for Swift](#zos&reg-connect-for-swift)
+  - [Installing](#installing)
+  - [Usage](#usage)
+    - [Connecting](#connecting)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## z/OS&reg; Connect for Swift
+
+A Swift package for working with APIs and Services managed by z/OS Connect Enterprise Edition (EE).
+
+### Installing
+
+Add the following to the `dependencies` array in your `Package.swift`.
+
+```swift
+.Package(url: "https://github.com/zosconnect/zosconnect-for-swift", majorVersion: 0, minor: 3)
+```
+
+### Usage
+
+#### Connecting
+
+```swift
+let zosConnect = ZosConnect(hostName: "hostname", port: 9080)
+```
+
+### License
 
 ```
 Licensed under the Apache License, Version 2.0 (the "License");
