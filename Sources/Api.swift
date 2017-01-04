@@ -31,6 +31,13 @@ open class Api {
     self.documentation = documentation
   }
     
+  /// Invoke the API
+  ///
+  /// - Parameters:
+  ///   - verb: The HTTP verb to use
+  ///   - resource: The resource path to call
+  ///   - data: The request payload
+  ///   - callback: Callback function which takes a `ZosConnectResult<Data>` parameter
   public func invoke(_ verb: String, resource: String, data: Data?, callback: @escaping DataCallback){
     var hostPort:Int16
     if let port = basePath.port {
@@ -67,17 +74,23 @@ open class Api {
     }
   }
   
-  public func getApiDoc(_ documentationType: String, callback: @escaping (Data?) -> Void) {
+  /// Retrieve the API documentation for the API
+  ///
+  /// - Parameters:
+  ///   - documentationType: The type of API documentation to retrieve (e.g. Swagger)
+  ///   - callback: Callback function which takes a `ZosConnectResult<Data>` parameter
+  public func getApiDoc(_ documentationType: String, callback: @escaping DataCallback) {
     if let documentUri = documentation[documentationType].string {
       let req = HTTP.get(documentUri) { (response) in
         var data = Data()
+        let resultObj = ZosConnectResult<Data>()
         do {
           try response?.readAllData(into: &data)
-          callback(data)
+          resultObj.result = data
         } catch let error {
-          print("got an error creating the request: \(error)")
-          callback(nil)
+          resultObj.error = error;
         }
+        callback(resultObj)
       }
       req.end()
     }

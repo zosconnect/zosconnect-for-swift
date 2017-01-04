@@ -29,6 +29,11 @@ open class Service {
     self.invokeUri = URLParser(url: invokeUri.data(using: String.Encoding.utf8)!, isConnect: false)
   }
   
+  /// Invoke the service.
+  ///
+  /// - Parameters:
+  ///   - data: JSON Object to be sent to the service
+  ///   - callback: Callback function which takes a `ZosConnectResult<Data>` parameter
   open func invoke(_ data: Data?, callback: @escaping DataCallback){
     var hostPort:Int16
     if let port = invokeUri.port {
@@ -69,6 +74,9 @@ open class Service {
     }
   }
   
+  /// Get the JSON schema that describes the request payload for the service
+  ///
+  /// - Parameter callback: Callback function which takes a `ZosConnectResult<Data>` parameter.
   open func getRequestSchema(_ callback: @escaping DataCallback){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=getRequestSchema"
@@ -94,6 +102,9 @@ open class Service {
     req.end()
   }
   
+  /// Get the JSON schema that describes the response payload for the service
+  ///
+  /// - Parameter callback: Callback function which takes a `ZosConnectResult<Data>` parameter.
   open func getResponseSchema(_ callback: @escaping DataCallback){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=getResponseSchema"
@@ -156,18 +167,27 @@ open class Service {
     req.end()
   }
   
+  /// Get the status of the service
+  ///
+  /// - Parameter callback: Callback function which takes a `ZosConnectResult<ServiceStatus>` parameter
   open func getStatus(_ callback: @escaping StatusCallback){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=status"
     callUriWithStatus(uri, verb: "GET", callback: callback)
   }
   
+  /// Request to set the status of the service as started
+  ///
+  /// - Parameter callback: Callback function which takes a `ZosConnectResult<ServiceStatus>` parameter
   open func start(_ callback: @escaping StatusCallback){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=start"
     callUriWithStatus(uri, verb: "PUT", callback: callback)
   }
   
+  /// Request to set the status of the service as stopped
+  ///
+  /// - Parameter callback: Callback function which takes a `ZosConnectResult<ServiceStatus>` parameter
   open func stop(_ callback: @escaping StatusCallback){
     var uri = connection.hostName + ":" + String(connection.port)
     uri += "/zosConnect/services/" + serviceName + "?action=stop"
@@ -175,10 +195,16 @@ open class Service {
   }
 }
 
+/// Alias for a Callback function which takes `ZosConnectResult<ServiceStatus> as a parameter.
 public typealias StatusCallback = (_ response: ZosConnectResult<ServiceStatus>) -> Void
 
 // MARK: ServiceStatus enum
 
+/// Enumeration of the status a Service can have.
+///
+/// - STARTED: The Service is started
+/// - STOPPED: The Service is stopped
+/// - UNAVAILABLE: The status of the service is unavailable
 public enum ServiceStatus: String {
   case STARTED = "STARTED", STOPPED = "STOPPED", UNAVAILABLE = "UNAVAILABLE"
 }

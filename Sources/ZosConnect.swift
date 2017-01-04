@@ -18,6 +18,7 @@ import Foundation
 import SwiftyJSON
 import KituraNet
 
+/// Main class for connecting to z/OS Connect Enterprise Edition and getting information about the available APIs and Services.
 open class ZosConnect {
   let hostName: String
   let port: Int32
@@ -33,6 +34,9 @@ open class ZosConnect {
 
   // MARK: Service calls
 
+  /// Get the names of all the services available in the z/OS Connect EE server
+  ///
+  /// - Parameter result: Callback function which takes a `ZosConnectResult<[String]>` parameter
   open func getServices(_ result: @escaping ListCallback) {
     let req = HTTP.get(hostName + ":" + String(port) + "/zosConnect/services", callback:{(response)-> Void in
       let resultObj = ZosConnectResult<[String]>()
@@ -57,6 +61,11 @@ open class ZosConnect {
     req.end()
   }
 
+  /// Get the specified Service from the z/OS Connect EE server.
+  ///
+  /// - Parameters:
+  ///   - serviceName: The name of the service
+  ///   - result: Callback function which takes a `ZosConnectResult<Service>` paramter
   open func getService(_ serviceName: String, result: @escaping ServiceCallback) {
     let req = HTTP.get(hostName + ":" + String(port) + "/zosConnect/services/" + serviceName, callback: {(response) -> Void in
       let resultObj = ZosConnectResult<Service>()
@@ -85,6 +94,9 @@ open class ZosConnect {
 
   // MARK: API calls
 
+  /// Get the names of all the APIs available in the z/OS Connect EE server.
+  ///
+  /// - Parameter result: Callback function which takes a `ZosConnectResult<[String]>` parameter.
   open func getApis(_ result: @escaping ListCallback) {
     let req = HTTP.get(hostName + ":" + String(port) + "/zosConnect/apis", callback: {(response) -> Void in
       let resultObj = ZosConnectResult<[String]>()
@@ -109,6 +121,11 @@ open class ZosConnect {
     req.end()
   }
 
+  /// Get the specified API from the z/OS Connect EE server.
+  ///
+  /// - Parameters:
+  ///   - apiName: The name of the API
+  ///   - result: Callback function which takies a `ZosConnectResult<Api>` parameter.
   open func getApi(_ apiName: String, result: @escaping ApiCallback) {
     let req = HTTP.get(hostName + ":" + String(port) + "/zosConnect/apis/" + apiName, callback: {(response) -> Void in
       let resultObj = ZosConnectResult<Api>()
@@ -139,6 +156,12 @@ open class ZosConnect {
 
 // MARK: Error types
 
+/// Enumeration of the errors that can occur when calling the z/OS Connect EE server.
+///
+/// - unknownservice: The requested service is not available in the z/OS Connect EE server.
+/// - unknownapi: The request API is not available in the z/OS Connect EE server.
+/// - connectionerror: There was an error connecting to the z/OS Connect EE server, the cause is linked.
+/// - servererror: There was a server error, the HTTP status code is linked.
 public enum ZosConnectErrors : Swift.Error {
   case unknownservice, unknownapi
   case connectionerror(Swift.Error), servererror(Int)
@@ -146,7 +169,11 @@ public enum ZosConnectErrors : Swift.Error {
 
 // MARK: Response closure
 
+/// Alias for a callback function taking a `ZosConnectResult<Data>` as parameter
 public typealias DataCallback = (_ response: ZosConnectResult<Data>) -> Void
+/// Alias for a callback function taking a `ZosConnectResult<[String]>` as parameter
 public typealias ListCallback = (_ response: ZosConnectResult<[String]>) -> Void
+/// Alias for a callback function taking a `ZosConnectResult<Service>` as parameter
 public typealias ServiceCallback = (_ response: ZosConnectResult<Service>) -> Void
+/// Alias for a callback function taking a `ZosConnectResult<Api>` as parameter
 public typealias ApiCallback = (_ response: ZosConnectResult<Api>) -> Void
