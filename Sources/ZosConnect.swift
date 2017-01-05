@@ -20,16 +20,46 @@ import KituraNet
 
 /// Main class for connecting to z/OS Connect Enterprise Edition and getting information about the available APIs and Services.
 open class ZosConnect {
-  let hostName: String
-  let port: Int32
+  
+  let hostName: URLParser
   let userId: String?
   let password: String?
 
-  public init(hostName: String, port: Int32, userId: String? = nil, password: String? = nil) {
-    self.hostName = hostName
-    self.port = port
+  public init(uri: String, userId: String? = nil, password: String? = nil) {
+    self.hostName = URLParser(url: uri.data(using: String.Encoding.utf8)!, isConnect: false)
     self.userId = userId
     self.password = password
+  }
+  
+  internal func getPort()->Int16 {
+    if let port = hostName.port {
+      return Int16(port);
+    } else {
+      if hostName.schema == "https" {
+        return Int16(443);
+      } else {
+        return Int16(80);
+      }
+    }
+  }
+  
+  internal func getOptions(_ path: String) -> [ClientRequest.Options] {
+    return getOptions(path, verb: "GET")
+  }
+  
+  internal func getOptions(_ path: String, verb: String)->[ClientRequest.Options] {
+    var options = [ClientRequest.Options.schema(hostName.schema! + "://"),
+                   ClientRequest.Options.hostname(hostName.host!),
+                   ClientRequest.Options.port(getPort()),
+                   ClientRequest.Options.path(path),
+                   ClientRequest.Options.method(verb)];
+    if let user = userId {
+      options.append(ClientRequest.Options.username(user))
+    }
+    if let pass = password {
+      options.append(ClientRequest.Options.password(pass))
+    }
+    return options
   }
 
   // MARK: Service calls
@@ -38,7 +68,7 @@ open class ZosConnect {
   ///
   /// - Parameter result: Callback function which takes a `ZosConnectResult<[String]>` parameter
   open func getServices(_ result: @escaping ListCallback) {
-    let req = HTTP.get(hostName + ":" + String(port) + "/zosConnect/services", callback:{(response)-> Void in
+    let req = HTTP.request(getOptions("/zosConnect/services"), callback:{(response)-> Void in
       let resultObj = ZosConnectResult<[String]>()
       var data = Data()
       do {
@@ -67,7 +97,7 @@ open class ZosConnect {
   ///   - serviceName: The name of the service
   ///   - result: Callback function which takes a `ZosConnectResult<Service>` paramter
   open func getService(_ serviceName: String, result: @escaping ServiceCallback) {
-    let req = HTTP.get(hostName + ":" + String(port) + "/zosConnect/services/" + serviceName, callback: {(response) -> Void in
+    let req = HTTP.request(getOptions("/zosConnect/services/" + serviceName), callback:{(response)-> Void in
       let resultObj = ZosConnectResult<Service>()
       var data = Data()
       do {
@@ -98,7 +128,7 @@ open class ZosConnect {
   ///
   /// - Parameter result: Callback function which takes a `ZosConnectResult<[String]>` parameter.
   open func getApis(_ result: @escaping ListCallback) {
-    let req = HTTP.get(hostName + ":" + String(port) + "/zosConnect/apis", callback: {(response) -> Void in
+    let req = HTTP.request(getOptions("/zosConnect/apis"), callback:{(response)-> Void in
       let resultObj = ZosConnectResult<[String]>()
       var data = Data()
       do {
@@ -127,7 +157,7 @@ open class ZosConnect {
   ///   - apiName: The name of the API
   ///   - result: Callback function which takies a `ZosConnectResult<Api>` parameter.
   open func getApi(_ apiName: String, result: @escaping ApiCallback) {
-    let req = HTTP.get(hostName + ":" + String(port) + "/zosConnect/apis/" + apiName, callback: {(response) -> Void in
+    let req = HTTP.request(getOptions("/zosConnect/apis/" + apiName), callback:{(response)-> Void in
       let resultObj = ZosConnectResult<Api>()
       var data = Data()
       do {

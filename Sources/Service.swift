@@ -35,23 +35,24 @@ open class Service {
   ///   - data: JSON Object to be sent to the service
   ///   - callback: Callback function which takes a `ZosConnectResult<Data>` parameter
   open func invoke(_ data: Data?, callback: @escaping DataCallback){
-    var hostPort:Int16
-    if let port = invokeUri.port {
-      hostPort = Int16(port);
-    } else {
-      if invokeUri.schema == "https" {
-        hostPort = Int16(443);
-      } else {
-        hostPort = Int16(80);
-      }
-    }
     var options = [ClientRequest.Options.schema(invokeUri.schema! + "://"),
                    ClientRequest.Options.hostname(invokeUri.host!),
-                   ClientRequest.Options.port(hostPort),
                    ClientRequest.Options.path(invokeUri.path! + "?action=invoke"),
                    ClientRequest.Options.method("PUT")]
     if let port = invokeUri.port {
       options.append(ClientRequest.Options.port(Int16(port)))
+    } else {
+      if invokeUri.schema == "https" {
+        options.append(ClientRequest.Options.port(Int16(443)))
+      } else {
+        options.append(ClientRequest.Options.port(Int16(80)))
+      }
+    }
+    if let user = connection.userId {
+      options.append(ClientRequest.Options.username(user))
+    }
+    if let pass = connection.password {
+      options.append(ClientRequest.Options.password(pass))
     }
     let req = HTTP.request(options) { (response) in
       var data = Data()
@@ -78,9 +79,7 @@ open class Service {
   ///
   /// - Parameter callback: Callback function which takes a `ZosConnectResult<Data>` parameter.
   open func getRequestSchema(_ callback: @escaping DataCallback){
-    var uri = connection.hostName + ":" + String(connection.port)
-    uri += "/zosConnect/services/" + serviceName + "?action=getRequestSchema"
-    let req = HTTP.get(uri) { (response) in
+    let req = HTTP.request(connection.getOptions("/zosConnect/services/" + serviceName + "?action=getRequestSchema")) { (response) in
       let resultObj = ZosConnectResult<Data>()
       var data = Data()
       do {
@@ -106,9 +105,7 @@ open class Service {
   ///
   /// - Parameter callback: Callback function which takes a `ZosConnectResult<Data>` parameter.
   open func getResponseSchema(_ callback: @escaping DataCallback){
-    var uri = connection.hostName + ":" + String(connection.port)
-    uri += "/zosConnect/services/" + serviceName + "?action=getResponseSchema"
-    let req = HTTP.get(uri) { (response) in
+    let req = HTTP.request(connection.getOptions("/zosConnect/services/" + serviceName + "?action=getResponseSchema")) { (response) in
       let resultObj = ZosConnectResult<Data>()
       var data = Data()
       do {
@@ -130,23 +127,8 @@ open class Service {
     req.end()
   }
   
-  private func callUriWithStatus(_ uri: String, verb: String, callback: @escaping StatusCallback){
-    let parsedUri = URLParser(url: uri.data(using: String.Encoding.utf8)!, isConnect: false)
-    var hostPort:Int16
-    if let port = parsedUri.port {
-      hostPort = Int16(port);
-    } else {
-      if parsedUri.schema == "https" {
-        hostPort = Int16(443);
-      } else {
-        hostPort = Int16(80);
-      }
-    }
-    let req = HTTP.request([ClientRequest.Options.schema(parsedUri.schema! + "://"),
-                            ClientRequest.Options.hostname(parsedUri.host!),
-                            ClientRequest.Options.port(hostPort),
-                            ClientRequest.Options.path(parsedUri.path! + "?" + parsedUri.query!),
-                            ClientRequest.Options.method(verb)]) { (response) in
+  private func callUriWithStatus(_ path: String, verb: String, callback: @escaping StatusCallback){
+    let req = HTTP.request(connection.getOptions(path, verb: verb)) { (response) in
       let resultObj = ZosConnectResult<ServiceStatus>()
       var data = Data()
       do {
@@ -171,27 +153,24 @@ open class Service {
   ///
   /// - Parameter callback: Callback function which takes a `ZosConnectResult<ServiceStatus>` parameter
   open func getStatus(_ callback: @escaping StatusCallback){
-    var uri = connection.hostName + ":" + String(connection.port)
-    uri += "/zosConnect/services/" + serviceName + "?action=status"
-    callUriWithStatus(uri, verb: "GET", callback: callback)
+    let path = "/zosConnect/services/" + serviceName + "?action=status"
+    callUriWithStatus(path, verb: "GET", callback: callback)
   }
   
   /// Request to set the status of the service as started
   ///
   /// - Parameter callback: Callback function which takes a `ZosConnectResult<ServiceStatus>` parameter
   open func start(_ callback: @escaping StatusCallback){
-    var uri = connection.hostName + ":" + String(connection.port)
-    uri += "/zosConnect/services/" + serviceName + "?action=start"
-    callUriWithStatus(uri, verb: "PUT", callback: callback)
+    let path = "/zosConnect/services/" + serviceName + "?action=start"
+    callUriWithStatus(path, verb: "PUT", callback: callback)
   }
   
   /// Request to set the status of the service as stopped
   ///
   /// - Parameter callback: Callback function which takes a `ZosConnectResult<ServiceStatus>` parameter
   open func stop(_ callback: @escaping StatusCallback){
-    var uri = connection.hostName + ":" + String(connection.port)
-    uri += "/zosConnect/services/" + serviceName + "?action=stop"
-    callUriWithStatus(uri, verb: "PUT", callback: callback)
+    let path = "/zosConnect/services/" + serviceName + "?action=stop"
+    callUriWithStatus(path, verb: "PUT", callback: callback)
   }
 }
 

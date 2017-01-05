@@ -39,21 +39,29 @@ open class Api {
   ///   - data: The request payload
   ///   - callback: Callback function which takes a `ZosConnectResult<Data>` parameter
   public func invoke(_ verb: String, resource: String, data: Data?, callback: @escaping DataCallback){
-    var hostPort:Int16
+    var options = [ClientRequest.Options.schema(basePath.schema! + "://"),
+                   ClientRequest.Options.hostname(basePath.host!),
+                   ClientRequest.Options.path(basePath.path! + resource),
+                   ClientRequest.Options.method(verb)]
+    
     if let port = basePath.port {
-      hostPort = Int16(port);
+      options.append(ClientRequest.Options.port(Int16(port)))
     } else {
       if basePath.schema == "https" {
-        hostPort = Int16(443);
+        options.append(ClientRequest.Options.port(Int16(443)))
       } else {
-        hostPort = Int16(80);
+        options.append(ClientRequest.Options.port(Int16(80)))
       }
     }
-    let req = HTTP.request([ClientRequest.Options.schema(basePath.schema! + "://"),
-                            ClientRequest.Options.hostname(basePath.host!),
-                            ClientRequest.Options.port(hostPort),
-                            ClientRequest.Options.path(basePath.path! + resource),
-                            ClientRequest.Options.method(verb)]) { (response) in
+    
+    if let user = connection.userId {
+      options.append(ClientRequest.Options.username(user))
+    }
+    if let pass = connection.password {
+      options.append(ClientRequest.Options.password(pass));
+    }
+    
+    let req = HTTP.request(options) { (response) in
       var data = Data()
       let resultObj = ZosConnectResult<Data>()
       do {
@@ -81,7 +89,30 @@ open class Api {
   ///   - callback: Callback function which takes a `ZosConnectResult<Data>` parameter
   public func getApiDoc(_ documentationType: String, callback: @escaping DataCallback) {
     if let documentUri = documentation[documentationType].string {
-      let req = HTTP.get(documentUri) { (response) in
+      let parsedUri = URLParser(url: documentUri.data(using: String.Encoding.utf8)!, isConnect: false)
+      var options = [ClientRequest.Options.schema(parsedUri.schema! + "://"),
+                     ClientRequest.Options.hostname(parsedUri.host!),
+                     ClientRequest.Options.path(parsedUri.path!),
+                     ClientRequest.Options.method("GET")]
+      
+      if let port = basePath.port {
+        options.append(ClientRequest.Options.port(Int16(port)))
+      } else {
+        if basePath.schema == "https" {
+          options.append(ClientRequest.Options.port(Int16(443)))
+        } else {
+          options.append(ClientRequest.Options.port(Int16(80)))
+        }
+      }
+      
+      if let user = connection.userId {
+        options.append(ClientRequest.Options.username(user))
+      }
+      if let pass = connection.password {
+        options.append(ClientRequest.Options.password(pass));
+      }
+
+      let req = HTTP.request(options) { (response) in
         var data = Data()
         let resultObj = ZosConnectResult<Data>()
         do {

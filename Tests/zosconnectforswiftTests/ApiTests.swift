@@ -34,7 +34,7 @@ import XCTest
 
 class ApiTests: XCTestCase {
   
-  let zosConnect = ZosConnect(hostName: "http://zosconnectmock.mybluemix.net", port: 80)
+  let zosConnect = ZosConnect(uri: "http://zosconnectmock.mybluemix.net")
   
   override func setUp() {
     super.setUp()
