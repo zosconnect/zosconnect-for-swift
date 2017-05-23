@@ -26,11 +26,15 @@ Add the following to the `dependencies` array in your `Package.swift`.
 
 ### Usage
 
-#### Connecting
+Create an instance of the ZosConnect object passing in the URI of the z/OS Connect EE server.
 
 ```swift
-let zosConnect = ZosConnect(hostName: "hostname", port: 9080)
+let zosConnect = ZosConnect(uri: "http://example.com:9080")
 ```
+
+This object provides functions for retrieving a list of Services and APIs and getting an individual Service or API by name.
+
+The Service and API objects then provide functions to work with those artefacts. The documentation provides more information on using these functions.
 
 ### License
 
